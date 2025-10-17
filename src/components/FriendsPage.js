@@ -17,8 +17,8 @@ function FriendsPage() {
   const fetchData = useCallback(async () => {
     try {
       const [friendsRes, pendingRes] = await Promise.all([
-        axios.get('http://localhost:3001/api/friends/list', getAuthHeaders()),
-        axios.get('http://localhost:3001/api/friends/pending', getAuthHeaders())
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/friends/list`, getAuthHeaders()),
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/friends/pending`, getAuthHeaders())
       ]);
       setFriends(friendsRes.data);
       setPendingRequests(pendingRes.data);
@@ -39,7 +39,7 @@ function FriendsPage() {
         return;
     };
     try {
-      const res = await axios.get(`http://localhost:3001/api/friends/search?query=${searchQuery}`, getAuthHeaders());
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/friends/search?query=${searchQuery}`, getAuthHeaders());
       setSearchResults(res.data);
     } catch (error) {
       console.error("Error searching users:", error);
@@ -48,7 +48,7 @@ function FriendsPage() {
 
   const sendFriendRequest = async (recipientId) => {
     try {
-      await axios.post(`http://localhost:3001/api/friends/request/${recipientId}`, {}, getAuthHeaders());
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/friends/request/${recipientId}`, {}, getAuthHeaders());
       alert("Friend request sent!");
       handleSearch(); // Refresh search results to potentially update button states
     } catch (error) {
@@ -58,7 +58,7 @@ function FriendsPage() {
 
   const acceptFriendRequest = async (requesterId) => {
     try {
-      await axios.put(`http://localhost:3001/api/friends/accept/${requesterId}`, {}, getAuthHeaders());
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/friends/accept/${requesterId}`, {}, getAuthHeaders());
       alert("Friend request accepted!");
       fetchData(); // Refresh friends and pending request lists
     } catch (error) {

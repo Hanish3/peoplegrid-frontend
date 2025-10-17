@@ -38,7 +38,7 @@ function App() {
     // Effect for initializing and tearing down the socket connection
     useEffect(() => {
       if (currentUser) {
-        const newSocket = io("http://localhost:3001");
+        const newSocket = io(process.env.REACT_APP_BACKEND_URL);
         setSocket(newSocket);
         newSocket.emit("addUser", currentUser.user_id);
         return () => {
@@ -53,7 +53,7 @@ function App() {
         const currentToken = localStorage.getItem('token');
         if (!currentToken) return;
         try {
-            const response = await axios.get('http://localhost:3001/api/posts', { headers: { Authorization: `Bearer ${currentToken}` } });
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, { headers: { Authorization: `Bearer ${currentToken}` } });
             
             // Format posts from the API response
             const formattedPosts = response.data.map(post => ({
@@ -78,7 +78,7 @@ function App() {
     const fetchUserProfile = async (currentToken) => {
         if (!currentToken) return;
         try {
-            const response = await axios.get('http://localhost:3001/api/profile', { headers: { Authorization: `Bearer ${currentToken}` } });
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/profile`, { headers: { Authorization: `Bearer ${currentToken}` } });
             setCurrentUser(response.data);
         } catch (error) { console.error("Could not fetch user profile", error); }
     };
@@ -115,7 +115,7 @@ function App() {
         if (mediaFile) formData.append('mediaFile', mediaFile);
         
         try {
-            await axios.post('http://localhost:3001/api/posts', formData, {
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, formData, {
                 headers: { 
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}` 
@@ -128,14 +128,14 @@ function App() {
     const handleDeletePost = async (postId) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            await axios.delete(`http://localhost:3001/api/posts/${postId}`, { headers: { Authorization: `Bearer ${token}` } });
+            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/posts/${postId}`, { headers: { Authorization: `Bearer ${token}` } });
             fetchPosts(); // Re-fetch posts after deletion
         } catch (error) { console.error("Failed to delete post", error); alert("Not authorized."); }
     };
 
     const handleLikePost = async (postId) => {
         try {
-            await axios.post(`http://localhost:3001/api/posts/${postId}/like`, {}, {
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/posts/${postId}/like`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchPosts(); // Re-fetch to update like count and status
@@ -147,7 +147,7 @@ function App() {
             return;
         }
         try {
-            await axios.delete(`http://localhost:3001/api/posts/${postId}/comments/${commentId}`, {
+            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/posts/${postId}/comments/${commentId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // A better UX would update state, but for now, this works

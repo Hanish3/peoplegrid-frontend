@@ -18,13 +18,17 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
     }
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`http://localhost:3001/api/posts/${post.id}/comments`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // ✅ Updated to use environment variable
+      const res = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/posts/${post.id}/comments`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setComments(res.data);
       setShowComments(true);
     } catch (error) {
-      console.error("Failed to fetch comments", error);
+      console.error('Failed to fetch comments', error);
     }
   };
 
@@ -32,29 +36,31 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
     e.preventDefault();
     if (!newComment.trim()) return;
     try {
-        const token = localStorage.getItem('token');
-        const res = await axios.post(`http://localhost:3001/api/posts/${post.id}/comment`, 
-            { comment_text: newComment }, 
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-        
-        // Add the user_id to the new comment from the currentUser object for immediate UI feedback
-        const newCommentData = { 
-            ...res.data, 
-            username: currentUser.username,
-            user_id: currentUser.user_id
-        };
-        setComments([...comments, newCommentData]);
-        setNewComment('');
-        setShowComments(true);
+      const token = localStorage.getItem('token');
+      // ✅ Updated to use environment variable
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/posts/${post.id}/comment`,
+        { comment_text: newComment },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Add the user_id to the new comment from the currentUser object for immediate UI feedback
+      const newCommentData = {
+        ...res.data,
+        username: currentUser.username,
+        user_id: currentUser.user_id,
+      };
+      setComments([...comments, newCommentData]);
+      setNewComment('');
+      setShowComments(true);
     } catch (error) {
-        console.error("Failed to post comment", error);
+      console.error('Failed to post comment', error);
     }
   };
-  
+
   const handleShare = () => {
     navigator.clipboard.writeText(`${window.location.origin}/posts/${post.id}`);
-    alert("Link copied to clipboard!");
+    alert('Link copied to clipboard!');
   };
 
   return (
@@ -73,35 +79,52 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
       </div>
 
       {post.title && <h3 className="post-title">{post.title}</h3>}
-      
-      {post.mediaUrl && (post.mediaUrl.endsWith('.mp4') || post.mediaUrl.endsWith('.webm') ? 
-        <video src={post.mediaUrl} controls className="post-media"/> : 
-        <img src={post.mediaUrl} alt="post media" className="post-media"/>
-      )}
+
+      {post.mediaUrl &&
+        (post.mediaUrl.endsWith('.mp4') || post.mediaUrl.endsWith('.webm') ? (
+          <video src={post.mediaUrl} controls className="post-media" />
+        ) : (
+          <img src={post.mediaUrl} alt="post media" className="post-media" />
+        ))}
 
       <p className="post-content">{post.content}</p>
-      
+
       <div className="post-stats">
         <span>{post.likeCount} Likes</span>
         <span>{post.commentCount} Comments</span>
       </div>
 
       <div className="post-actions">
-        <button className={`action-button ${post.isLikedByUser ? 'liked' : ''}`} onClick={() => onLike(post.id)}>👍 Like</button>
-        <button className="action-button" onClick={fetchComments}>💬 Comment</button>
-        <button className="action-button" onClick={handleShare}>↪️ Share</button>
+        <button
+          className={`action-button ${post.isLikedByUser ? 'liked' : ''}`}
+          onClick={() => onLike(post.id)}
+        >
+          👍 Like
+        </button>
+        <button className="action-button" onClick={fetchComments}>
+          💬 Comment
+        </button>
+        <button className="action-button" onClick={handleShare}>
+          ↪️ Share
+        </button>
       </div>
 
       {showComments && (
         <div className="comment-section">
           <form onSubmit={handleCommentSubmit} className="comment-form">
-            <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Write a comment..." />
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write a comment..."
+            />
             <button type="submit">Post</button>
           </form>
           <div className="comment-list">
-            {comments.map(c => {
+            {comments.map((c) => {
               // 2. Check if the current user is the author of the comment
-              const isCommentAuthor = currentUser && currentUser.user_id === c.user_id;
+              const isCommentAuthor =
+                currentUser && currentUser.user_id === c.user_id;
 
               return (
                 <div key={c.comment_id} className="comment">
@@ -109,9 +132,11 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
                     <strong>{c.username}</strong>
                     {/* 3. Conditionally render the delete button */}
                     {isCommentAuthor && (
-                      <button 
-                        className="comment-delete-button" 
-                        onClick={() => onDeleteComment(post.id, c.comment_id)}
+                      <button
+                        className="comment-delete-button"
+                        onClick={() =>
+                          onDeleteComment(post.id, c.comment_id)
+                        }
                       >
                         &times;
                       </button>
