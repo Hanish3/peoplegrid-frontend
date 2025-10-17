@@ -1,0 +1,95 @@
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+/* --- NEW STYLES START HERE --- */
+
+/* Style for the Text, Photo/Video, Blog Post buttons */
+.post-type-selector {
+  display: flex;
+  border-bottom: 1px solid #e4e6eb;
+  margin-bottom: 1rem;
+}
+
+.post-type-selector button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 0.8rem;
+  font-weight: 600;
+  color: #65676b;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+
+.post-type-selector button.active {
+  color: #0d6efd;
+  border-bottom: 3px solid #0d6efd;
+}
+
+/* Main body alignment */
+.create-post-body {
+  display: flex;
+  align-items: flex-start;
+}
+
+.inputs-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Style for input fields */
+.create-post-body textarea, .create-post-body .title-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background-color: #f0f2f5;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: none;
+}
+
+.create-post-body .title-input {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.create-post-body textarea {
+  min-height: 60px;
+}
+
+/* Post button alignment */
+.create-post-actions {
+  display: flex;
+  margin-top: 1rem;
+}
+
+.post-button {
+  flex-grow: 1;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.post-button:hover {
+  background-color: #0b5ed7;
+}
