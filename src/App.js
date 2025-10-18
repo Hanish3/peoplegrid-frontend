@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, Outlet } from 'react-router-dom';
 import axios from 'axios';
 import { io } from "socket.io-client";
 
@@ -29,6 +29,30 @@ axios.interceptors.response.use(
   }
 );
 
+// This is the main layout for your app with the three columns
+const AppLayout = ({ currentUser }) => (
+  <main className="main-content">
+    <aside className="left-sidebar">
+      <h4>Navigation</h4>
+      <ul className="nav-list">
+        <li><Link to="/">🏠 Home Feed</Link></li>
+        {currentUser && <li><Link to={`/profile/${currentUser.user_id}`}>👤 My Profile</Link></li>}
+        <li><Link to="/messages">💬 Messages</Link></li>
+        <li><Link to="/friends">👥 Friends</Link></li>
+        <li><Link to="/groups">🏛️ Campus Groups</Link></li>
+      </ul>
+    </aside>
+    <section className="feed">
+      {/* Child routes will be rendered here */}
+      <Outlet />
+    </section>
+    <aside className="right-sidebar">
+      <div className="card right-sidebar-card"><h3>Friends Online</h3><ul className="friend-list"><li>Priya Sharma</li><li>Amit Singh</li></ul></div>
+    </aside>
+  </main>
+);
+
+
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [posts, setPosts] = useState([]);
@@ -36,12 +60,12 @@ function App() {
   const [socket, setSocket] = useState(null);
   const [feedType, setFeedType] = useState('media');
 
-  // Effect for managing the Socket.IO connection
   useEffect(() => {
     if (currentUser) {
       const newSocket = io(process.env.REACT_APP_BACKEND_URL || "http://localhost:3001");
       setSocket(newSocket);
       newSocket.emit("addUser", currentUser.user_id);
+
       return () => {
         newSocket.disconnect();
         setSocket(null);
@@ -49,7 +73,6 @@ function App() {
     }
   }, [currentUser]);
 
-  // --- DATA FETCHING ---
   const fetchPosts = async () => {
     const currentToken = localStorage.getItem('token');
     if (!currentToken) return;
@@ -96,7 +119,6 @@ function App() {
     }
   }, [token]);
 
-  // --- HANDLER FUNCTIONS ---
   const handleLoginSuccess = (receivedToken) => {
     localStorage.setItem('token', receivedToken);
     setToken(receivedToken);
@@ -121,53 +143,29 @@ function App() {
         {token && <Header onLogout={handleLogout} currentUser={currentUser} />}
         
         <Routes>
-          {/* If there's no token, show the login page. Otherwise, redirect to the main app */}
           <Route path="/login" element={!token ? <LoginPage onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/" />} />
-
-          {/* This is the main route for your logged-in app */}
-          <Route path="/*" element={token ? (
-            <main className="main-content">
-              {/* === LEFT SIDEBAR === */}
-              <aside className="left-sidebar">
-                <h4>Navigation</h4>
-                <ul className="nav-list">
-                  <li><Link to="/">🏠 Home Feed</Link></li>
-                  {currentUser && <li><Link to={`/profile/${currentUser.user_id}`}>👤 My Profile</Link></li>}
-                  <li><Link to="/messages">💬 Messages</Link></li>
-                  <li><Link to="/friends">👥 Friends</Link></li>
-                  <li><Link to="/groups">🏛️ Campus Groups</Link></li>
-                </ul>
-              </aside>
-              
-              {/* === MAIN CONTENT AREA === */}
-              <section className="feed">
-                {/* Nested Routes decide what shows up in this middle column */}
-                <Routes>
-                  <Route path="/" element={
-                    <>
-                      <CreatePost currentUser={currentUser} onCreatePost={handleCreatePost} feedType={feedType} setFeedType={setFeedType} />
-                      {filteredPosts.map(post => (
-                        <Post key={post.id} post={post} currentUser={currentUser} onDelete={handleDeletePost} onLike={handleLikePost} onDeleteComment={handleDeleteComment} />
-                      ))}
-                    </>
-                  } />
-                  <Route path="/profile/:userId" element={<ProfilePage currentUser={currentUser} />} />
-                  <Route path="/messages" element={<MessagesPage socket={socket} currentUser={currentUser} />} />
-                  <Route path="/friends" element={<FriendsPage />} />
-                  <Route path="/groups" element={<CampusGroupsPage />} />
-                  <Route path="*" element={<div>404 - Page Not Found</div>} />
-                </Routes>
-              </section>
-
-              {/* === RIGHT SIDEBAR === */}
-              <aside className="right-sidebar">
-                <div className="card right-sidebar-card"><h3>Friends Online</h3><ul className="friend-list"><li>Priya Sharma</li><li>Amit Singh</li></ul></div>
-              </aside>
-            </main>
-          ) : (
-            // If there's no token, redirect any other path to login
-            <Navigate to="/login" />
-          )} />
+          
+          {/* Protected Route for the main application layout */}
+          <Route path="/" element={token ? <AppLayout currentUser={currentUser} /> : <Navigate to="/login" />}>
+            {/* The "index" route is the default page for the layout (your feed) */}
+            <Route index element={
+              <>
+                <CreatePost currentUser={currentUser} onCreatePost={handleCreatePost} feedType={feedType} setFeedType={setFeedType} />
+                {filteredPosts.map(post => (
+                  <Post key={post.id} post={post} currentUser={currentUser} onDelete={handleDeletePost} onLike={handleLikePost} onDeleteComment={handleDeleteComment} />
+                ))}
+              </>
+            } />
+            
+            {/* Other pages that will render inside the layout */}
+            <Route path="profile/:userId" element={<ProfilePage currentUser={currentUser} />} />
+            <Route path="messages" element={<MessagesPage socket={socket} currentUser={currentUser} />} />
+            <Route path="friends" element={<FriendsPage />} />
+            <Route path="groups" element={<CampusGroupsPage />} />
+          </Route>
+          
+          {/* A catch-all route for 404 pages */}
+          <Route path="*" element={token ? <div>404 - Page Not Found</div> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>
