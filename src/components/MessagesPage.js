@@ -14,7 +14,7 @@ function MessagesPage({ socket, currentUser }) {
     const getFriends = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/friends/list`, {
+        const res = await axios.get(`https://peoplegrid-api.onrender.com/api/friends/list`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFriends(res.data);
@@ -30,7 +30,7 @@ function MessagesPage({ socket, currentUser }) {
       if (!activeChat) return;
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/${activeChat.user_id}`, {
+        const res = await axios.get(`https://peoplegrid-api.onrender.com/api/messages/${activeChat.user_id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setMessages(res.data);

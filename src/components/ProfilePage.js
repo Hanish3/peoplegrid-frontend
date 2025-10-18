@@ -13,7 +13,7 @@ function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/profile`, {
+      const response = await axios.get(`https://peoplegrid-api.onrender.com/api/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProfileData(response.data);
@@ -47,7 +47,7 @@ function ProfilePage() {
         const photoFormData = new FormData();
         photoFormData.append('profilePhoto', photoFile);
 
-        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/profile/upload-photo`, photoFormData, {
+        await axios.post(`https://peoplegrid-api.onrender.com/api/profile/upload-photo`, photoFormData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,
@@ -55,7 +55,7 @@ function ProfilePage() {
         });
       }
 
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/profile`, formData, {
+      await axios.put(`https://peoplegrid-api.onrender.com/api/profile`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

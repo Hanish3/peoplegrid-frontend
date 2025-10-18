@@ -35,7 +35,7 @@ function App() {
     // --- EFFECT FOR MANAGING SOCKET.IO CONNECTION (CORRECTED) ---
     useEffect(() => {
       if (currentUser) {
-        const newSocket = io("http://localhost:3001");
+        const newSocket = io("https://peoplegrid-api.onrender.com");
         setSocket(newSocket);
         newSocket.emit("addUser", currentUser.user_id);
 
@@ -51,7 +51,7 @@ function App() {
         const currentToken = localStorage.getItem('token');
         if (!currentToken) return;
         try {
-            const response = await axios.get('http://localhost:3001/api/posts', { headers: { Authorization: `Bearer ${currentToken}` } });
+            const response = await axios.get('https://peoplegrid-api.onrender.com/api/posts', { headers: { Authorization: `Bearer ${currentToken}` } });
             const formattedPosts = response.data.map(post => ({
                 id: post.post_id,
                 author: post.username,
@@ -73,7 +73,7 @@ function App() {
     const fetchUserProfile = async (currentToken) => {
         if (!currentToken) return;
         try {
-            const response = await axios.get('http://localhost:3001/api/profile', { headers: { Authorization: `Bearer ${currentToken}` } });
+            const response = await axios.get('https://peoplegrid-api.onrender.com/api/profile', { headers: { Authorization: `Bearer ${currentToken}` } });
             setCurrentUser(response.data);
         } catch (error) { console.error("Could not fetch user profile", error); }
     };
@@ -164,7 +164,7 @@ function AppWithFunctions() {
 
     useEffect(() => {
         if (currentUser) {
-            const newSocket = io("http://localhost:3001");
+            const newSocket = io("https://peoplegrid-api.onrender.com");
             setSocket(newSocket);
             newSocket.emit("addUser", currentUser.user_id);
             return () => { newSocket.disconnect(); setSocket(null); };

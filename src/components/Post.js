@@ -20,7 +20,7 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
       const token = localStorage.getItem('token');
       // ✅ Updated to use environment variable
       const res = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/posts/${post.id}/comments`,
+        `https://peoplegrid-api.onrender.com/api/posts/${post.id}/comments`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -39,7 +39,7 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
       const token = localStorage.getItem('token');
       // ✅ Updated to use environment variable
       const res = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/posts/${post.id}/comment`,
+        `https://peoplegrid-api.onrender.com/api/posts/${post.id}/comment`,
         { comment_text: newComment },
         { headers: { Authorization: `Bearer ${token}` } }
       );

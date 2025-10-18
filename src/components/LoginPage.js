@@ -14,8 +14,7 @@ function LoginPage({ onLoginSuccess }) {
     e.preventDefault();
     setError(''); // Clear previous errors
 
-    // ✅ Updated: Use environment variable for backend URL
-    const backendUrl = `${process.env.REACT_APP_BACKEND_URL}/api/auth`;
+    const backendUrl = 'https://peoplegrid-api.onrender.com/api/auth';
 
     try {
       if (isLoginView) {
