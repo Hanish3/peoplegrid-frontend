@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Post.css';
 import { format } from 'timeago.js';
 
-// 1. Accept the new 'onDeleteComment' prop
 function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -18,7 +18,6 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
     }
     try {
       const token = localStorage.getItem('token');
-      // ✅ Updated to use environment variable
       const res = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/api/posts/${post.id}/comments`,
         {
@@ -37,14 +36,12 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
     if (!newComment.trim()) return;
     try {
       const token = localStorage.getItem('token');
-      // ✅ Updated to use environment variable
       const res = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/posts/${post.id}/comment`,
         { comment_text: newComment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Add the user_id to the new comment from the currentUser object for immediate UI feedback
       const newCommentData = {
         ...res.data,
         username: currentUser.username,
@@ -68,7 +65,9 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
       <div className="post-header">
         <img src={post.avatar} alt={post.author} className="avatar" />
         <div>
-          <div className="post-author">{post.author}</div>
+          <div className="post-author">
+            <Link to={`/profile/${post.authorId}`}>{post.author}</Link>
+          </div>
           <div className="post-timestamp">{format(post.timestamp)}</div>
         </div>
         {isAuthor && (
@@ -122,15 +121,15 @@ function Post({ post, currentUser, onLike, onDelete, onDeleteComment }) {
           </form>
           <div className="comment-list">
             {comments.map((c) => {
-              // 2. Check if the current user is the author of the comment
               const isCommentAuthor =
                 currentUser && currentUser.user_id === c.user_id;
 
               return (
                 <div key={c.comment_id} className="comment">
                   <div className="comment-header">
-                    <strong>{c.username}</strong>
-                    {/* 3. Conditionally render the delete button */}
+                    <strong>
+                      <Link to={`/profile/${c.user_id}`}>{c.username}</Link>
+                    </strong>
                     {isCommentAuthor && (
                       <button
                         className="comment-delete-button"
