@@ -42,7 +42,6 @@ function App() {
       const newSocket = io(process.env.REACT_APP_BACKEND_URL || "http://localhost:3001");
       setSocket(newSocket);
       newSocket.emit("addUser", currentUser.user_id);
-
       return () => {
         newSocket.disconnect();
         setSocket(null);
@@ -90,7 +89,6 @@ function App() {
     }
   };
 
-  // Effect to fetch initial data when the token changes (e.g., on login)
   useEffect(() => {
     if (token) {
       fetchUserProfile(token);
@@ -115,7 +113,6 @@ function App() {
   const handleLikePost = async (postId) => { /* ... your logic ... */ };
   const handleDeleteComment = async (postId, commentId) => { /* ... your logic ... */ };
 
-  // Filter posts based on the selected feed type for the home feed
   const filteredPosts = posts.filter(post => post.post_type === feedType);
 
   return (
@@ -124,10 +121,13 @@ function App() {
         {token && <Header onLogout={handleLogout} currentUser={currentUser} />}
         
         <Routes>
+          {/* If there's no token, show the login page. Otherwise, redirect to the main app */}
           <Route path="/login" element={!token ? <LoginPage onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/" />} />
 
+          {/* This is the main route for your logged-in app */}
           <Route path="/*" element={token ? (
             <main className="main-content">
+              {/* === LEFT SIDEBAR === */}
               <aside className="left-sidebar">
                 <h4>Navigation</h4>
                 <ul className="nav-list">
@@ -138,7 +138,10 @@ function App() {
                   <li><Link to="/groups">🏛️ Campus Groups</Link></li>
                 </ul>
               </aside>
+              
+              {/* === MAIN CONTENT AREA === */}
               <section className="feed">
+                {/* Nested Routes decide what shows up in this middle column */}
                 <Routes>
                   <Route path="/" element={
                     <>
@@ -155,11 +158,14 @@ function App() {
                   <Route path="*" element={<div>404 - Page Not Found</div>} />
                 </Routes>
               </section>
+
+              {/* === RIGHT SIDEBAR === */}
               <aside className="right-sidebar">
                 <div className="card right-sidebar-card"><h3>Friends Online</h3><ul className="friend-list"><li>Priya Sharma</li><li>Amit Singh</li></ul></div>
               </aside>
             </main>
           ) : (
+            // If there's no token, redirect any other path to login
             <Navigate to="/login" />
           )} />
         </Routes>
